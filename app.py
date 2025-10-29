@@ -9,13 +9,11 @@ from sklearn.metrics import accuracy_score, roc_auc_score
 from gtts import gTTS
 from io import BytesIO
 
-# -------------------- Page Setup --------------------
 st.set_page_config(page_title="FireCast", page_icon="🚒", layout="centered")
 
 st.title("🔥 FireCast: Pre-Fire Detection System")
 st.markdown("### Predict Fire Risks based on Atmospheric Conditions")
 
-# -------------------- Safety Instructions --------------------
 safety_instructions = {
     "CRITICAL": "Evacuate immediately. Call emergency services. Do not use elevators. Stay low to avoid smoke.",
     "HIGH": "Stay alert. Prepare to evacuate. Turn off electrical appliances. Keep fire extinguishers ready.",
@@ -89,7 +87,7 @@ if st.button("🚨 Predict Fire Risk"):
           f"**Safety Instructions:** {safety_instructions[level]}"
     st.markdown(msg)
 
-    # ---------------- Voice Output using gTTS (Auto-play instantly) ----------------
+    # ---------------- Voice Output using gTTS ----------------
     text_to_speak = (
         f"The system predicts {level} fire risk. "
         f"The probability is {prob*100:.1f} percent. "
