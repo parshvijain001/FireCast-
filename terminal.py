@@ -5,7 +5,7 @@ import threading
 import datetime
 import csv
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg  # ✅ to show plots in Tkinter
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg  #
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
@@ -15,7 +15,7 @@ from tkinter import messagebox
 import speech_recognition as sr
 import os
 
-# ---------------- SAFETY INSTRUCTIONS ----------------
+
 safety_instructions = {
     "CRITICAL": "Evacuate immediately. Call emergency services. Do not use elevators. Stay low to avoid smoke.",
     "HIGH": "Stay alert. Prepare to evacuate. Turn off electrical appliances. Keep fire extinguishers ready.",
@@ -23,7 +23,6 @@ safety_instructions = {
     "LOW": "No immediate danger. Stay cautious and continue monitoring conditions."
 }
 
-# ---------------- VOICE FUNCTION ----------------
 def tts_speak(text):
     def run():
         engine = pyttsx3.init()
@@ -112,7 +111,7 @@ def predict_and_warn(input_dict):
             level
         ])
 
-# ---------------- TKINTER UI ----------------
+# ---------------- TKINTER GUI ----------------
 root = tk.Tk()
 root.title("🔥 Pre-Fire Detection System 🚒")
 root.geometry("500x800")
@@ -164,7 +163,7 @@ submit_btn.pack(pady=10)
 
 
 
-# ---------------- PIE CHART FUNCTION (FIXED) ----------------
+# ---------------- PIE CHART FUNCTION ----------------
 def view_pie_chart():
     try:
         user_input = {f: float(entries[f].get()) for f in features}
@@ -185,7 +184,7 @@ def view_pie_chart():
     )
     ax.set_title("Contributing Factors to Fire Risk", fontsize=14, weight="bold", pad=10)
 
-    # ✅ Embed Matplotlib figure into Tkinter
+   
     chart_window = tk.Toplevel(root)
     chart_window.title("📊 Feature Contribution Chart")
     chart_window.geometry("650x650")
