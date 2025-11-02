@@ -12,7 +12,7 @@ from io import BytesIO
 st.set_page_config(page_title="FireCast", page_icon="🚒", layout="centered")
 
 st.title("🔥 FireCast: Pre-Fire Detection System")
-st.markdown("### Predict Fire Risks based on Atmospheric Conditions")
+st.markdown("### Predict Fire Risks Based on Atmospheric Conditions")
 
 safety_instructions = {
     "CRITICAL": "Evacuate immediately. Call emergency services. Do not use elevators. Stay low to avoid smoke.",
@@ -55,14 +55,51 @@ def train_model():
 rf, scaler, features, acc, roc = train_model()
 st.success(f"✅ Model trained successfully! Accuracy: {acc:.2f}, ROC-AUC: {roc:.2f}")
 
+# -------------------- Feature Descriptions & Ranges --------------------
+feature_info = {
+    "Temperature[C]": {"desc": "Higher temperatures increase ignition chances.", "min": -10, "max": 60},
+    "Humidity[%]": {"desc": "Low humidity dries air, increasing fire risk.", "min": 0, "max": 100},
+    "TVOC[ppb]": {"desc": "High VOC levels can indicate smoke or flammable gases.", "min": 0, "max": 60000},
+    "eCO2[ppm]": {"desc": "High CO₂ may signal incomplete combustion.", "min": 300, "max": 5000},
+    "Raw H2": {"desc": "High hydrogen concentration increases flammability.", "min": 0, "max": 100000},
+    "Raw Ethanol": {"desc": "Indicates volatile organic compound presence.", "min": 0, "max": 100000},
+    "Pressure[hPa]": {"desc": "Low pressure may favor fire spread.", "min": 850, "max": 1100},
+    "PM1.0": {"desc": "Higher particulate matter indicates smoke presence.", "min": 0, "max": 1000},
+    "PM2.5": {"desc": "Fine particles often come from combustion.", "min": 0, "max": 1000},
+    "NC0.5": {"desc": "Particle count, indicates smoke density.", "min": 0, "max": 5000},
+    "NC1.0": {"desc": "Medium-size smoke particles in the air.", "min": 0, "max": 5000},
+    "NC2.5": {"desc": "Larger smoke particles affecting visibility.", "min": 0, "max": 5000},
+    "CNT": {"desc": "General particle counter for air purity.", "min": 0, "max": 5000}
+}
+
 # -------------------- User Input Form --------------------
 st.subheader("🌡️ Enter Atmospheric Conditions")
 
 user_input = {}
 cols = st.columns(2)
+warnings = []
+
 for i, f in enumerate(features):
     with cols[i % 2]:
-        user_input[f] = st.number_input(f, value=0.0, format="%.2f")
+        info = feature_info[f]
+        val = st.number_input(
+            f"{f} ({info['desc']})",
+            min_value=float(info["min"]),
+            max_value=float(info["max"]),
+            value=float((info["min"] + info["max"]) / 2),
+            format="%.2f"
+        )
+        user_input[f] = val
+
+        # Range validation
+        if val < info["min"] or val > info["max"]:
+            warnings.append(f"{f} is out of realistic range ({info['min']}–{info['max']}).")
+
+# Display warnings
+if warnings:
+    for w in warnings:
+        st.warning(w)
+    st.stop()
 
 # -------------------- Prediction --------------------
 if st.button("🚨 Predict Fire Risk"):
@@ -87,23 +124,20 @@ if st.button("🚨 Predict Fire Risk"):
           f"**Safety Instructions:** {safety_instructions[level]}"
     st.markdown(msg)
 
-    # ---------------- Voice Output using gTTS ----------------
+    # Voice Output using gTTS
     text_to_speak = (
         f"The system predicts {level} fire risk. "
         f"The probability is {prob*100:.1f} percent. "
         f"{safety_instructions[level]}"
     )
-
     audio_fp = BytesIO()
     tts = gTTS(text=text_to_speak, lang="en")
     tts.write_to_fp(audio_fp)
     audio_fp.seek(0)
-
     st.audio(audio_fp, format="audio/mp3", start_time=0)
 
 # -------------------- Pie Chart Visualization --------------------
-st.subheader("📊 Feature Contribution Overview")
-
+st.subheader("📊 Feature Value Distribution (Your Input)")
 if st.button("Show Pie Chart"):
     values = list(user_input.values())
     fig, ax = plt.subplots(figsize=(5, 5))
@@ -116,8 +150,17 @@ if st.button("Show Pie Chart"):
         textprops={'fontsize': 8, 'fontname': 'Garamond'}
     )
     plt.setp(autotexts, size=8, weight="bold", color="black")
-    ax.set_title("Contributing Factors to Fire Risk", fontsize=13, weight="bold", pad=10)
+    ax.set_title("Relative Contribution of Input Factors", fontsize=13, weight="bold", pad=10)
     st.pyplot(fig)
+
+# -------------------- Feature Importance Chart --------------------
+st.subheader("🧩 Model Feature Importance (What the Model Learns Matters Most)")
+importances = rf.feature_importances_
+fig, ax = plt.subplots(figsize=(6, 5))
+ax.barh(features, importances, color="orange")
+ax.set_xlabel("Importance")
+ax.set_title("Feature Importance in Fire Prediction", fontsize=12, weight="bold")
+st.pyplot(fig)
 
 st.caption("Developed by Parshvi")
 
