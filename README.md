@@ -4,6 +4,8 @@ The web version of the Pre-Fire Detection System offers a simple, interactive in
 
 To make the experience engaging, the web app includes voice-based alerts that announce the risk level when the user clicks the “Voice Alert” button. It also features a pie chart visualization showing which atmospheric factors contribute most to the predicted fire risk, allowing better understanding and data-driven insights.
 
+PS: the question mark beside every parameter tells you about the normal value for it recorded statistically.
+
 Required Libraries for Web Version:
 
 pandas – for data handling
